@@ -4,6 +4,8 @@ import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,6 +18,10 @@ public class Util {
     private static final String DB_USERNAME = "Victor";
     private static final String DB_PASSWORD = "!@#My1Sql987";
     private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String DB_DIALECT = "org.hibernate.dialect.MySQLDialect";
+    private static final String DB_SHOW = "true";
+    private static final String DB_CURRENT_SESSION = "thread";
+    private static final String DB_HBM2DDL_AUTO = "";
 
     public static Connection getConnection(){
         Connection connection = null;
@@ -33,20 +39,19 @@ public class Util {
 
     private static SessionFactory sessionFactory;
 
-    static {
+     public static SessionFactory getSessionFactory() {
         try {
-
             Properties properties = new Properties();
-            properties.setProperty("hibernate.connection.driver", DB_DRIVER);
-            properties.setProperty("hibernate.connection.url", DB_URL);
-            properties.setProperty("hibernate.connection.username", DB_USERNAME);
-            properties.setProperty("hibernate.connection.password", DB_PASSWORD);
-            properties.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
-            properties.setProperty("show_sql", "true");
-            properties.setProperty("CURRENT_SESSION_CONTEXT_CLASS", "thread");
-            properties.setProperty("hibernate.hbm2ddl.auto", "");
+            properties.setProperty(Environment.DRIVER, DB_DRIVER);
+            properties.setProperty(Environment.URL, DB_URL);
+            properties.setProperty(Environment.USER, DB_USERNAME);
+            properties.setProperty(Environment.PASS, DB_PASSWORD);
+            properties.setProperty(Environment.DIALECT, DB_DIALECT);
+            properties.setProperty(Environment.SHOW_SQL, DB_SHOW);
+            properties.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, DB_CURRENT_SESSION);
+            properties.setProperty(Environment.HBM2DDL_AUTO, DB_HBM2DDL_AUTO);
 
-            sessionFactory = new org.hibernate.cfg.Configuration()
+            sessionFactory = new Configuration()
                     .addProperties(properties)
                     .addAnnotatedClass(User.class)
                     .buildSessionFactory();
@@ -58,10 +63,11 @@ public class Util {
             System.out.println("DB my_db НЕ подключена!");
             e.printStackTrace();
         }
-    }
+         return sessionFactory;
+     }
 
     public static Session getSession() throws HibernateException {
-        return sessionFactory.openSession();
+        return getSessionFactory().openSession();
     }
 
 }
